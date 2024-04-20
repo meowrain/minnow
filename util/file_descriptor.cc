@@ -36,13 +36,15 @@ T FileDescriptor::CheckSystemCall( std::string_view s_attempt, T return_value ) 
   return internal_fd_->CheckSystemCall( s_attempt, return_value );
 }
 
-// fd is the file descriptor number returned by [open(2)](\ref man2::open) or similar
+// fd 是 [open(2)](\ref man2::open) 或类似函数返回的文件描述符编号
 FileDescriptor::FDWrapper::FDWrapper( int fd ) : fd_( fd )
 {
   if ( fd < 0 ) {
     throw runtime_error( "invalid fd number:" + to_string( fd ) );
   }
-
+  //`fcntl`（file
+  // control）是一个用于对文件描述符进行控制操作的Unix系统调用。它提供了一种灵活的方式来控制文件描述符的属性，如文件状态标志（file
+  // status flags）、文件描述符标志（file descriptor flags）和文件锁（file locks）等。
   const int flags = CheckSystemCall( "fcntl", fcntl( fd, F_GETFL ) ); // NOLINT(*-vararg)
   non_blocking_ = flags & O_NONBLOCK;                                 // NOLINT(*-bitwise)
 }
@@ -61,25 +63,25 @@ FileDescriptor::FDWrapper::~FDWrapper()
     }
     close();
   } catch ( const exception& e ) {
-    // don't throw an exception from the destructor
+    // 不要从析构函数中抛出异常
     cerr << "Exception destructing FDWrapper: " << e.what() << endl;
   }
 }
 
-// fd is the file descriptor number returned by [open(2)](\ref man2::open) or similar
+// fd 是 [open(2)](\ref man2::open) 或类似函数返回的文件描述符编号
 FileDescriptor::FileDescriptor( int fd ) : internal_fd_( make_shared<FDWrapper>( fd ) ) {}
 
-// Private constructor used by duplicate()
+// duplicate(）使用的私有构造函数
 FileDescriptor::FileDescriptor( shared_ptr<FDWrapper> other_shared_ptr ) : internal_fd_( move( other_shared_ptr ) )
 {}
 
-// returns a copy of this FileDescriptor
+// 返回此 FileDescriptor 的副本
 FileDescriptor FileDescriptor::duplicate() const
 {
   return FileDescriptor { internal_fd_ };
 }
 
-// buffer is the string to be read into
+// buffer 是要读入的字符串
 void FileDescriptor::read( string& buffer )
 {
   if ( buffer.empty() ) {
@@ -95,6 +97,7 @@ void FileDescriptor::read( string& buffer )
     throw unix_error { "read" };
   }
 
+  //增加读取计数
   register_read();
 
   if ( bytes_read == 0 ) {
@@ -116,8 +119,20 @@ void FileDescriptor::read( vector<string>& buffers )
 
   buffers.back().clear();
   buffers.back().resize( kReadBufferSize );
+  /**iovec 是用于进行 I/O 操作的一个结构体，通常用于在进行数据传输时指定多个缓冲区。它定义在 <sys/uio.h> 头文件中。
 
+iovec 结构体通常用于在使用诸如 readv()、writev()
+等系统调用时指定多个缓冲区的情况。这些系统调用允许在一个系统调用中传输多个不连续的缓冲区。
+
+iovec 结构体通常包含两个字段：
+
+   void* iov_base: 指向缓冲区的指针。
+   size_t iov_len: 缓冲区的大小。
+
+vector<iovec> 是一个向量，其中的每个元素都是一个 iovec 结构体，用于指定一个缓冲区。在你的代码中，iovecs
+这个向量用于存储多个缓冲区的信息，以便在调用 readv() 系统调用时一次性读取多个缓冲区的数据。*/
   vector<iovec> iovecs;
+
   iovecs.reserve( buffers.size() );
   size_t total_size = 0;
   for ( const auto& x : buffers ) {

@@ -41,11 +41,11 @@ int main( int argc, char* argv[] )
       return EXIT_FAILURE;
     }
 
-    // Get the command-line arguments.
+    // 获取命令行参数。
     const string host { args[1] };
     const string path { args[2] };
 
-    // Call the student-written function.
+    // 调用学生编写的函数。
     get_URL( host, path );
   } catch ( const exception& e ) {
     cerr << e.what() << "\n";
