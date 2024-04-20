@@ -97,7 +97,7 @@ void FileDescriptor::read( string& buffer )
     throw unix_error { "read" };
   }
 
-  //增加读取计数
+  // 增加读取计数
   register_read();
 
   if ( bytes_read == 0 ) {

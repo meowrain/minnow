@@ -57,9 +57,9 @@ protected:
 
   void set_eof() { internal_fd_->eof_ = true; }
   // 增加读取计数
-  void register_read() { ++internal_fd_->read_count_; }   
+  void register_read() { ++internal_fd_->read_count_; }
   // 增加写入次数
-  void register_write() { ++internal_fd_->write_count_; } 
+  void register_write() { ++internal_fd_->write_count_; }
 
   template<typename T>
   T CheckSystemCall( std::string_view s_attempt, T return_value ) const;
@@ -81,35 +81,35 @@ public:
   size_t write( const std::vector<std::string_view>& buffers );
   size_t write( const std::vector<std::string>& buffers );
 
-//关闭底层文件描述符
+  // 关闭底层文件描述符
   void close() { internal_fd_->close(); }
 
-//显式复制 FileDescriptor，增加 FDWrapper 引用计数
+  // 显式复制 FileDescriptor，增加 FDWrapper 引用计数
   FileDescriptor duplicate() const;
 
-//设置阻塞（true）或非阻塞（false）
+  // 设置阻塞（true）或非阻塞（false）
   void set_blocking( bool blocking );
 
-//文件大小
-/**
- * `off_t`是一个在C和C++中用于表示文件偏移量（file offset）的类型。
- * 它通常用于文件操作中，用来指示文件中的位置或偏移量。在不同的操作系统和平台上，
- * `off_t`的大小可能会有所不同，但通常会被定义为一个整数类型（如`long`或`long long`）。
-在Linux和Unix系统中，`off_t`通常被定义为`long`类型，它用于表示文件中的偏移量。在文件操作中，`off_t`常用于`lseek`函数来移动文件指针到指定的偏移量位置。
-*/
+  // 文件大小
+  /**
+   * `off_t`是一个在C和C++中用于表示文件偏移量（file offset）的类型。
+   * 它通常用于文件操作中，用来指示文件中的位置或偏移量。在不同的操作系统和平台上，
+   * `off_t`的大小可能会有所不同，但通常会被定义为一个整数类型（如`long`或`long long`）。
+  在Linux和Unix系统中，`off_t`通常被定义为`long`类型，它用于表示文件中的偏移量。在文件操作中，`off_t`常用于`lseek`函数来移动文件指针到指定的偏移量位置。
+  */
   off_t size() const;
 
   // FDWrapper accessors
-  int fd_num() const { return internal_fd_->fd_; }//底层描述符编号
-  bool eof() const { return internal_fd_->eof_; }//EOF 标志状态
-  bool closed() const { return internal_fd_->closed_; }//关闭标志状态
-  unsigned int read_count() const { return internal_fd_->read_count_; }//读取次数
-  unsigned int write_count() const { return internal_fd_->write_count_; }//写入次数
+  int fd_num() const { return internal_fd_->fd_; }                        // 底层描述符编号
+  bool eof() const { return internal_fd_->eof_; }                         // EOF 标志状态
+  bool closed() const { return internal_fd_->closed_; }                   // 关闭标志状态
+  unsigned int read_count() const { return internal_fd_->read_count_; }   // 读取次数
+  unsigned int write_count() const { return internal_fd_->write_count_; } // 写入次数
 
-//复制/移动构造函数/赋值运算符
-//FileDescriptor 可以移动，但不能隐式复制（参见duplicate()）
-  FileDescriptor( const FileDescriptor& other ) = delete;//禁止复制构造
-  FileDescriptor& operator=( const FileDescriptor& other ) = delete;//禁止复制赋值
-  FileDescriptor( FileDescriptor&& other ) = default;//允许移动构造
-  FileDescriptor& operator=( FileDescriptor&& other ) = default;//允许移动赋值
+  // 复制/移动构造函数/赋值运算符
+  // FileDescriptor 可以移动，但不能隐式复制（参见duplicate()）
+  FileDescriptor( const FileDescriptor& other ) = delete;            // 禁止复制构造
+  FileDescriptor& operator=( const FileDescriptor& other ) = delete; // 禁止复制赋值
+  FileDescriptor( FileDescriptor&& other ) = default;                // 允许移动构造
+  FileDescriptor& operator=( FileDescriptor&& other ) = default;     // 允许移动赋值
 };

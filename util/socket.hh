@@ -80,7 +80,7 @@ class UDPSocket : public DatagramSocket
   explicit UDPSocket( FileDescriptor&& fd ) : DatagramSocket( std::move( fd ), AF_INET, SOCK_DGRAM ) {}
 
 public:
-//！默认：构造一个未绑定、未连接的 UDP 套接字
+  // ！默认：构造一个未绑定、未连接的 UDP 套接字
   UDPSocket() : DatagramSocket( AF_INET, SOCK_DGRAM ) {}
 };
 
@@ -93,13 +93,13 @@ private:
   explicit TCPSocket( FileDescriptor&& fd ) : Socket( std::move( fd ), AF_INET, SOCK_STREAM, IPPROTO_TCP ) {}
 
 public:
-//！默认值：构造一个未绑定、未连接的 TCP 套接字
+  // ！默认值：构造一个未绑定、未连接的 TCP 套接字
   TCPSocket() : Socket( AF_INET, SOCK_STREAM ) {}
 
-//！将套接字标记为侦听传入连接
+  // ！将套接字标记为侦听传入连接
   void listen( int backlog = 16 );
 
-//！接受新的传入连接
+  // ！接受新的传入连接
   TCPSocket accept();
 };
 

@@ -1,11 +1,11 @@
 #pragma once
 
+#include <algorithm>
 #include <cstdint>
-#include <string>
-#include <string_view>
 #include <deque>
 #include <iostream>
-#include <algorithm>
+#include <string>
+#include <string_view>
 class Reader;
 class Writer;
 
@@ -27,17 +27,17 @@ public:
 
 protected:
   // 请将任何附加状态添加到此处的 ByteStream，而不是添加到 Writer 和 Reader 接口。
-  //使用deque双端队列存储字节
+  // 使用deque双端队列存储字节
   std::deque<char> buffer_ {};
-  //容量
+  // 容量
   uint64_t capacity_;
-  //错误默认初始化为false
+  // 错误默认初始化为false
   bool error_ {};
-  //流默认状态为false，也就是打开状态
+  // 流默认状态为false，也就是打开状态
   bool closed_ {};
-  //写入的字节数
+  // 写入的字节数
   uint64_t bytes_written_ {};
-  //读取的字节数
+  // 读取的字节数
   uint64_t bytes_read_ {};
 };
 
