@@ -31,36 +31,51 @@ void Reassembler::insert( uint64_t first_index, string data, bool is_last_substr
     }
   }
   if ( first_unacceptable <= first_index ) {
+    //如果第一个不能接受的索引<=要插入的数据段的起始索引，那就不用插入了，直接return
     return;
   }
   if ( last_index > first_unacceptable ) {
+    //如果这个数据段的最后一个索引>第一个不能接受的索引，那我们只需要取从first_index到first_unacceptable的数据段就可以了，剩下超出去的就没必要留着了。因为已经超出capacity了
     data.erase( first_unacceptable - first_index );
   }
+
   if ( !segments_.empty() ) {
-    auto cur = segments_.lower_bound( Seg( first_index, "" ) );
+    //如果数据段set不为空
+    auto cur = segments_.lower_bound( Seg( first_index, "" ) );//快速找到第一个起点大于等于要插入字串的字串
     if ( cur != segments_.begin() ) {
-      cur--;
+      //如果cur不是set集合中的第一个元素
+      cur--;//cur向前移动一位,指向第一个起始索引小于first_index的数据段
       if ( cur->first_index + cur->data.size() > first_index ) {
+        //如果前一个数据段的最后一个字节的索引大于first_index
+        //那么就从当前要插入的数据段中删除前一个数据段已经覆盖的部分 ,可以看writeups中的check1.drawio文件
         data.erase( 0, cur->first_index + cur->data.size() - first_index );
         first_index += cur->first_index + cur->data.size() - first_index;
       }
     }
-
+    
     cur = segments_.lower_bound( Seg( first_index, "" ) );
+    // 再次使用 lower_bound 找到第一个起始索引大于等于 first_index 的数据段
     while ( cur != segments_.end() && cur->first_index < last_index ) {
+      // 如果当前数据段完全在新插入的数据段范围内
       if ( cur->first_index + cur->data.size() <= last_index ) {
+        // 如果当前数据段完全在新插入的数据段范围内
+        // 减少bytes_wating的计数
         bytes_waiting_ -= cur->data.size();
+        //从segments中删除这个数据段
         segments_.erase( cur );
+        //重新定位cur到新的起始索引处
         cur = segments_.lower_bound( Seg( first_index, "" ) );
       } else {
+        //当前数据段部分重叠或完全在新插入的数据段外部，那就从新插入的数据段中删除重叠部分
         data.erase( cur->first_index - first_index );
-        break;
+        break;//退出循环
       }
     }
   }
-
+  //全部处理完毕，把这个要插入的数据段插入到segments_中
   segments_.insert( Seg( first_index, data ) );
   bytes_waiting_ += data.size();
+  //推送到bytes_stream中
   check_push();
   //  (void)first_index;
   //  (void)data;
